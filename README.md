@@ -17,5 +17,5 @@ uses:
 
 Test server
 ```bash
-curl -u admin:admin -X POST http://localhost:8080/markdown -H "Content-Type: application/json" -d '{"productId": 123456, "quantity": 100}'
+curl -u admin:admin -X POST http://localhost:8080/markdown -H "Content-Type: application/json" -d '{"requestId": 123456, "content": "# Title \n## Test"}'    
 ```
