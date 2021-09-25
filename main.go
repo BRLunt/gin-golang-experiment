@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gomarkdown/markdown"
@@ -15,18 +16,17 @@ type MarkdownRequest struct {
 	MarkdownContent string `json:"content"`
 }
 
-type Test struct {
-	ProductId int `json:"productId"`
-	Quantity  int `json:"quantity"`
-}
-
 func main() {
+
+	get_password()
+	get_username()
+
 	r := gin.Default()
 
 	// authorization
 
 	v1 := r.Group("/", gin.BasicAuth(gin.Accounts{
-		"admin": "admin",
+		get_username(): get_password(),
 	}))
 
 	v1.POST("/markdown", func(c *gin.Context) {
@@ -43,10 +43,6 @@ func main() {
 
 		markdownBytes := []byte(markdownReq.MarkdownContent)
 
-		if !checkMarkdown(markdownBytes) {
-			log.Println("Bad markdown")
-		}
-
 		htmlBytes := markdownToHtml(markdownBytes)
 
 		fmt.Println("##################################")
@@ -58,11 +54,6 @@ func main() {
 	r.Run()
 }
 
-//TODO
-func checkMarkdown(markdownBytes []byte) bool {
-	return true
-}
-
 /**
 * Converts markdown bytes to html bytes
 **/
@@ -72,9 +63,31 @@ func markdownToHtml(markdownBytes []byte) []byte {
 }
 
 /**
-* Cleans the html
-* TODO: look at settings
+* cleans the html of potential malicous content
+* bluemonday.UGCPolicy() which allows a broad selection of HTML elements and attributes that are safe for user generated content.
+* Note that this policy does not allow iframes, object, embed, styles, script, etc.
+* An example usage scenario would be blog post bodies where a variety of formatting is expected along with the potential for TABLEs and IMGs.
 **/
 func sanatizeHtml(harmfullHtml []byte) []byte {
 	return bluemonday.UGCPolicy().SanitizeBytes(harmfullHtml)
+}
+
+// Retrives the password from the env varbiable
+func get_password() string {
+	password := os.Getenv("markdown_service_password")
+	if password == "" {
+		log.Fatalf("Could not retrieve password")
+	}
+
+	return password
+}
+
+// Retrives the username from the env varbiable
+func get_username() string {
+	username := os.Getenv("markdown_service_username")
+
+	if username == "" {
+		log.Fatal("Could not retrieve username")
+	}
+	return username
 }
