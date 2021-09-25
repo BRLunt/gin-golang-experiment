@@ -15,6 +15,18 @@ uses:
 - bluemonday (html sanitizer) 
 
 
+Set username and password environment variables like
+
+```bash
+export markdown_service_password=admin
+```
+
+and
+
+```bash
+export markdown_service_username=admin
+```
+
 Test server
 ```bash
 curl -u admin:admin -X POST http://localhost:8080/markdown -H "Content-Type: application/json" -d '{"productId": 123456, "quantity": 100}'
